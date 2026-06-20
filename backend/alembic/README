@@ -1,0 +1,5 @@
+Carpeta de migraciones de base de datos (Alembic).
+
+  alembic revision --autogenerate -m "descripcion_del_cambio"
+  alembic upgrade head
+  alembic downgrade -1
