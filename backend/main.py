@@ -2,6 +2,9 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from infraestructura.configuracion.settings import obtener_settings
+from presentacion.api.rutas.usuarios_rutas import router as usuarios_router
+from presentacion.api.rutas.datasets_rutas import router as datasets_router
+from presentacion.middlewares.manejador_excepciones import registrar_manejadores_excepciones
 
 settings = obtener_settings()
 
@@ -18,6 +21,11 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+registrar_manejadores_excepciones(app)
+
+app.include_router(usuarios_router, prefix="/api/v1")
+app.include_router(datasets_router, prefix="/api/v1")
 
 
 @app.get("/health", tags=["Sistema"])
