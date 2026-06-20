@@ -1,8 +1,15 @@
+from typing import TYPE_CHECKING
+
 from sqlalchemy import String
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from infraestructura.base_de_datos.base import Base
 from infraestructura.base_de_datos.modelos.mixins import AuditoriaMixin
+
+if TYPE_CHECKING:
+    from infraestructura.base_de_datos.modelos.conversacion_modelo import ConversacionModelo
+    from infraestructura.base_de_datos.modelos.dataset_modelo import DatasetModelo
+    from infraestructura.base_de_datos.modelos.informe_modelo import InformeModelo
 
 
 class UsuarioModelo(AuditoriaMixin, Base):
@@ -21,4 +28,17 @@ class UsuarioModelo(AuditoriaMixin, Base):
 
     google_id: Mapped[str | None] = mapped_column(
         String(255), unique=True, nullable=True, index=True
+    )
+
+    datasets: Mapped[list["DatasetModelo"]] = relationship(
+        back_populates="usuario",
+        cascade="all, delete-orphan",
+    )
+    informes: Mapped[list["InformeModelo"]] = relationship(
+        back_populates="usuario",
+        cascade="all, delete-orphan",
+    )
+    conversaciones: Mapped[list["ConversacionModelo"]] = relationship(
+        back_populates="usuario",
+        cascade="all, delete-orphan",
     )
