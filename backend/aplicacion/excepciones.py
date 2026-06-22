@@ -22,6 +22,10 @@ class ConversacionNoEncontradaError(ErrorAplicacion):
     pass
 
 
+class MensajeNoEncontradoError(ErrorAplicacion):
+    pass
+
+
 class TipoConversacionInvalidoError(ErrorAplicacion):
     pass
 

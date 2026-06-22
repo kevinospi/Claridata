@@ -14,3 +14,13 @@ class RepositorioConversacion(RepositorioBase[ConversacionModelo]):
             .filter(ConversacionModelo.informe_id == informe_id)
             .all()
         )
+
+    def obtener_aprendizaje_por_usuario(self, usuario_id: str) -> list[ConversacionModelo]:
+        return list(
+            self._sesion.query(ConversacionModelo)
+            .filter(
+                ConversacionModelo.usuario_id == usuario_id,
+                ConversacionModelo.tipo_conversacion == "aprendizaje",
+            )
+            .all()
+        )
