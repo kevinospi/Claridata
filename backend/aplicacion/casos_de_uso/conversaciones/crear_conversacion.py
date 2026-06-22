@@ -2,14 +2,24 @@ from infraestructura.base_de_datos.modelos.conversacion_modelo import Conversaci
 from infraestructura.base_de_datos.repositorios.repositorio_conversacion import (
     RepositorioConversacion,
 )
-from aplicacion.excepciones import TipoConversacionInvalidoError
+from infraestructura.base_de_datos.repositorios.repositorio_informe import RepositorioInforme
+from aplicacion.excepciones import (
+    AccesoDenegadoError,
+    InformeNoEncontradoError,
+    TipoConversacionInvalidoError,
+)
 
 _TIPOS_VALIDOS = {"informe", "aprendizaje"}
 
 
 class CrearConversacion:
-    def __init__(self, repositorio_conversacion: RepositorioConversacion) -> None:
+    def __init__(
+        self,
+        repositorio_conversacion: RepositorioConversacion,
+        repositorio_informe: RepositorioInforme,
+    ) -> None:
         self._repositorio_conversacion = repositorio_conversacion
+        self._repositorio_informe = repositorio_informe
 
     def ejecutar(
         self,
@@ -31,6 +41,16 @@ class CrearConversacion:
             raise TipoConversacionInvalidoError(
                 "Una conversación de tipo 'aprendizaje' no debe tener informe_id."
             )
+
+        if tipo_conversacion == "informe":
+            informe = self._repositorio_informe.obtener_por_id(informe_id)
+            if informe is None:
+                raise InformeNoEncontradoError(f"No existe un informe con id '{informe_id}'.")
+
+            if informe.usuario_id != usuario_id:
+                raise AccesoDenegadoError(
+                    "No tienes permiso para crear una conversación sobre este informe."
+                )
 
         nueva_conversacion = ConversacionModelo(
             usuario_id=usuario_id,

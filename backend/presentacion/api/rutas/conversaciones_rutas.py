@@ -12,7 +12,11 @@ from aplicacion.casos_de_uso.conversaciones.eliminar_conversacion import Elimina
 from infraestructura.base_de_datos.repositorios.repositorio_conversacion import (
     RepositorioConversacion,
 )
-from presentacion.api.dependencias.dependencias_db import obtener_repositorio_conversacion
+from infraestructura.base_de_datos.repositorios.repositorio_informe import RepositorioInforme
+from presentacion.api.dependencias.dependencias_db import (
+    obtener_repositorio_conversacion,
+    obtener_repositorio_informe,
+)
 from presentacion.api.dependencias.dependencias_usuario import obtener_usuario_actual_id
 from presentacion.esquemas.conversaciones.conversacion_esquema import (
     ConversacionCreacionEsquema,
@@ -31,9 +35,10 @@ router = APIRouter()
 def crear_conversacion(
     datos: ConversacionCreacionEsquema,
     repositorio_conversacion: RepositorioConversacion = Depends(obtener_repositorio_conversacion),
+    repositorio_informe: RepositorioInforme = Depends(obtener_repositorio_informe),
     usuario_id: str = Depends(obtener_usuario_actual_id),
 ) -> ConversacionRespuestaEsquema:
-    caso_de_uso = CrearConversacion(repositorio_conversacion)
+    caso_de_uso = CrearConversacion(repositorio_conversacion, repositorio_informe)
     conversacion = caso_de_uso.ejecutar(
         usuario_id=usuario_id,
         tipo_conversacion=datos.tipo_conversacion,
@@ -64,9 +69,11 @@ def listar_conversaciones_aprendizaje(
 def listar_conversaciones_por_informe(
     informe_id: str,
     repositorio_conversacion: RepositorioConversacion = Depends(obtener_repositorio_conversacion),
+    repositorio_informe: RepositorioInforme = Depends(obtener_repositorio_informe),
+    usuario_id: str = Depends(obtener_usuario_actual_id),
 ) -> list[ConversacionRespuestaEsquema]:
-    caso_de_uso = ListarConversacionesPorInforme(repositorio_conversacion)
-    conversaciones = caso_de_uso.ejecutar(informe_id)
+    caso_de_uso = ListarConversacionesPorInforme(repositorio_conversacion, repositorio_informe)
+    conversaciones = caso_de_uso.ejecutar(informe_id, usuario_id)
     return [ConversacionRespuestaEsquema.model_validate(c) for c in conversaciones]
 
 

@@ -5,8 +5,15 @@ from aplicacion.casos_de_uso.mensajes.listar_mensajes_conversacion import (
     ListarMensajesConversacion,
 )
 from aplicacion.casos_de_uso.mensajes.eliminar_mensaje import EliminarMensaje
+from infraestructura.base_de_datos.repositorios.repositorio_conversacion import (
+    RepositorioConversacion,
+)
 from infraestructura.base_de_datos.repositorios.repositorio_mensaje import RepositorioMensaje
-from presentacion.api.dependencias.dependencias_db import obtener_repositorio_mensaje
+from presentacion.api.dependencias.dependencias_db import (
+    obtener_repositorio_conversacion,
+    obtener_repositorio_mensaje,
+)
+from presentacion.api.dependencias.dependencias_usuario import obtener_usuario_actual_id
 from presentacion.esquemas.mensajes.mensaje_esquema import (
     MensajeCreacionEsquema,
     MensajeRespuestaEsquema,
@@ -25,10 +32,13 @@ def crear_mensaje(
     conversacion_id: str,
     datos: MensajeCreacionEsquema,
     repositorio_mensaje: RepositorioMensaje = Depends(obtener_repositorio_mensaje),
+    repositorio_conversacion: RepositorioConversacion = Depends(obtener_repositorio_conversacion),
+    usuario_id: str = Depends(obtener_usuario_actual_id),
 ) -> MensajeRespuestaEsquema:
-    caso_de_uso = CrearMensaje(repositorio_mensaje)
+    caso_de_uso = CrearMensaje(repositorio_mensaje, repositorio_conversacion)
     mensaje = caso_de_uso.ejecutar(
         conversacion_id=conversacion_id,
+        usuario_id=usuario_id,
         rol=datos.rol,
         contenido=datos.contenido,
         tipo_respuesta=datos.tipo_respuesta,
@@ -44,9 +54,11 @@ def crear_mensaje(
 def listar_mensajes(
     conversacion_id: str,
     repositorio_mensaje: RepositorioMensaje = Depends(obtener_repositorio_mensaje),
+    repositorio_conversacion: RepositorioConversacion = Depends(obtener_repositorio_conversacion),
+    usuario_id: str = Depends(obtener_usuario_actual_id),
 ) -> list[MensajeRespuestaEsquema]:
-    caso_de_uso = ListarMensajesConversacion(repositorio_mensaje)
-    mensajes = caso_de_uso.ejecutar(conversacion_id)
+    caso_de_uso = ListarMensajesConversacion(repositorio_mensaje, repositorio_conversacion)
+    mensajes = caso_de_uso.ejecutar(conversacion_id, usuario_id)
     return [MensajeRespuestaEsquema.model_validate(m) for m in mensajes]
 
 
@@ -58,6 +70,7 @@ def listar_mensajes(
 def eliminar_mensaje(
     mensaje_id: str,
     repositorio_mensaje: RepositorioMensaje = Depends(obtener_repositorio_mensaje),
+    usuario_id: str = Depends(obtener_usuario_actual_id),
 ) -> None:
     caso_de_uso = EliminarMensaje(repositorio_mensaje)
-    caso_de_uso.ejecutar(mensaje_id)
+    caso_de_uso.ejecutar(mensaje_id, usuario_id)
