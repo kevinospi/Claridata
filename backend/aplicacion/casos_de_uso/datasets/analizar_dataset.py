@@ -40,6 +40,10 @@ class AnalizarDataset:
                 f"No fue posible analizar el dataset '{dataset_id}': {error}"
             ) from error
 
+        self._actualizar_metadatos_dataset(dataset, resultado)
+        self._repositorio_dataset.actualizar(dataset)
+        self._repositorio_dataset.guardar_cambios()
+
         informe_existente = self._repositorio_informe.obtener_por_dataset(dataset_id)
 
         if informe_existente is not None:
@@ -52,6 +56,16 @@ class AnalizarDataset:
         self._repositorio_informe.crear(nuevo_informe)
         self._repositorio_informe.guardar_cambios()
         return nuevo_informe
+
+    def _actualizar_metadatos_dataset(
+        self,
+        dataset,
+        resultado: ResultadoMotorEstadistico,
+    ) -> None:
+        dataset.numero_filas = resultado.metadatos.numero_filas
+        dataset.numero_columnas = resultado.metadatos.numero_columnas
+        dataset.columnas = resultado.metadatos.nombres_columnas
+        dataset.tipos_datos = resultado.metadatos.tipos_datos
 
     def _construir_informe(
         self,
