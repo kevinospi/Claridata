@@ -8,6 +8,7 @@ from aplicacion.excepciones import (
     CredencialesInvalidasError,
     DatasetNoEncontradoError,
     EmailYaRegistradoError,
+    ErrorAnalisisDataset,
     ErrorAplicacion,
     ExtensionNoSoportadaError,
     InformeNoEncontradoError,
@@ -30,6 +31,7 @@ _MAPA_CODIGOS_HTTP: dict[type[ErrorAplicacion], int] = {
     ExtensionNoSoportadaError: 422,
     ArchivoVacioError: 422,
     TamañoArchivoExcedidoError: 422,
+    ErrorAnalisisDataset: 422,
 }
 
 

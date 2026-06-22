@@ -9,6 +9,7 @@ from infraestructura.base_de_datos.repositorios.repositorio_conversacion import 
     RepositorioConversacion,
 )
 from infraestructura.base_de_datos.repositorios.repositorio_mensaje import RepositorioMensaje
+from infraestructura.estadistica.motor_estadistico import MotorEstadistico
 
 
 def obtener_repositorio_usuario(
@@ -39,3 +40,7 @@ def obtener_repositorio_mensaje(
     sesion: Session = Depends(obtener_sesion_db),
 ) -> RepositorioMensaje:
     return RepositorioMensaje(sesion)
+
+
+def obtener_motor_estadistico() -> MotorEstadistico:
+    return MotorEstadistico()

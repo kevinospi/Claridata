@@ -4,12 +4,20 @@ from aplicacion.casos_de_uso.datasets.crear_dataset import CrearDataset
 from aplicacion.casos_de_uso.datasets.obtener_dataset import ObtenerDataset
 from aplicacion.casos_de_uso.datasets.listar_datasets_usuario import ListarDatasetsUsuario
 from aplicacion.casos_de_uso.datasets.eliminar_dataset import EliminarDataset
+from aplicacion.casos_de_uso.datasets.analizar_dataset import AnalizarDataset
 from aplicacion.validadores.validador_dataset import ValidadorDataset
 from infraestructura.almacenamiento.gestor_archivos import GestorArchivos
 from infraestructura.base_de_datos.repositorios.repositorio_dataset import RepositorioDataset
-from presentacion.api.dependencias.dependencias_db import obtener_repositorio_dataset
+from infraestructura.base_de_datos.repositorios.repositorio_informe import RepositorioInforme
+from infraestructura.estadistica.motor_estadistico import MotorEstadistico
+from presentacion.api.dependencias.dependencias_db import (
+    obtener_motor_estadistico,
+    obtener_repositorio_dataset,
+    obtener_repositorio_informe,
+)
 from presentacion.api.dependencias.dependencias_usuario import obtener_usuario_actual_id
 from presentacion.esquemas.datasets.dataset_esquema import DatasetRespuestaEsquema
+from presentacion.esquemas.informes.informe_esquema import InformeRespuestaEsquema
 
 router = APIRouter()
 
@@ -70,6 +78,23 @@ def obtener_dataset(
     caso_de_uso = ObtenerDataset(repositorio_dataset)
     dataset = caso_de_uso.ejecutar(dataset_id, usuario_id)
     return DatasetRespuestaEsquema.model_validate(dataset)
+
+
+@router.post(
+    "/datasets/{dataset_id}/analizar",
+    response_model=InformeRespuestaEsquema,
+    tags=["Datasets"],
+)
+def analizar_dataset(
+    dataset_id: str,
+    repositorio_dataset: RepositorioDataset = Depends(obtener_repositorio_dataset),
+    repositorio_informe: RepositorioInforme = Depends(obtener_repositorio_informe),
+    motor_estadistico: MotorEstadistico = Depends(obtener_motor_estadistico),
+    usuario_id: str = Depends(obtener_usuario_actual_id),
+) -> InformeRespuestaEsquema:
+    caso_de_uso = AnalizarDataset(repositorio_dataset, repositorio_informe, motor_estadistico)
+    informe = caso_de_uso.ejecutar(dataset_id, usuario_id)
+    return InformeRespuestaEsquema.model_validate(informe)
 
 
 @router.delete(

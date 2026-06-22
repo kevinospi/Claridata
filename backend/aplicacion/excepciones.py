@@ -48,3 +48,7 @@ class TamañoArchivoExcedidoError(ErrorAplicacion):
 
 class AccesoDenegadoError(ErrorAplicacion):
     pass
+
+
+class ErrorAnalisisDataset(ErrorAplicacion):
+    pass
