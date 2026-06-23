@@ -13,6 +13,9 @@ class ContextoInforme:
     conclusiones: str | None
     hallazgos_principales: dict | None
     recomendaciones: dict | None
+    correlaciones: dict | None = None
+    deteccion_outliers: dict | None = None
+    analisis_distribucion: dict | None = None
     historial: list[MensajeContexto] = field(default_factory=list)
 
 

@@ -19,5 +19,8 @@ class ConstructorContextoInforme:
             conclusiones=informe.conclusiones,
             hallazgos_principales=informe.hallazgos_principales,
             recomendaciones=informe.recomendaciones,
+            correlaciones=informe.correlaciones,
+            deteccion_outliers=informe.deteccion_outliers,
+            analisis_distribucion=informe.analisis_distribucion,
             historial=historial,
         )
