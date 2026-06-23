@@ -1,3 +1,5 @@
+import os
+
 from infraestructura.base_de_datos.repositorios.repositorio_dataset import RepositorioDataset
 from aplicacion.excepciones import AccesoDenegadoError, DatasetNoEncontradoError
 
@@ -14,5 +16,16 @@ class EliminarDataset:
         if dataset.usuario_id != usuario_id:
             raise AccesoDenegadoError("No tienes permiso para eliminar este dataset.")
 
+        ruta_archivo = dataset.ruta_archivo
+
         self._repositorio_dataset.eliminar(dataset)
         self._repositorio_dataset.guardar_cambios()
+
+        self._eliminar_archivo_fisico(ruta_archivo)
+
+    def _eliminar_archivo_fisico(self, ruta_archivo: str) -> None:
+        try:
+            if os.path.isfile(ruta_archivo):
+                os.remove(ruta_archivo)
+        except OSError:
+            pass

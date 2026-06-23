@@ -1,3 +1,5 @@
+import pandas as pd
+
 from infraestructura.base_de_datos.modelos.informe_modelo import InformeModelo
 from infraestructura.base_de_datos.repositorios.repositorio_dataset import RepositorioDataset
 from infraestructura.base_de_datos.repositorios.repositorio_informe import RepositorioInforme
@@ -35,7 +37,14 @@ class AnalizarDataset:
                 ruta_archivo=dataset.ruta_archivo,
                 tipo_archivo=dataset.tipo_archivo,
             )
-        except (FormatoArchivoNoSoportadoError, OSError, ValueError) as error:
+        except (
+            FormatoArchivoNoSoportadoError,
+            OSError,
+            ValueError,
+            pd.errors.ParserError,
+            pd.errors.EmptyDataError,
+            UnicodeDecodeError,
+        ) as error:
             raise ErrorAnalisisDataset(
                 f"No fue posible analizar el dataset '{dataset_id}': {error}"
             ) from error

@@ -49,3 +49,10 @@ def registrar_manejadores_excepciones(app: FastAPI) -> None:
             status_code=codigo_http,
             content={"detalle": str(exc)},
         )
+
+    @app.exception_handler(Exception)
+    def manejar_error_inesperado(request: Request, exc: Exception) -> JSONResponse:
+        return JSONResponse(
+            status_code=500,
+            content={"detalle": "Ocurrió un error interno inesperado."},
+        )
