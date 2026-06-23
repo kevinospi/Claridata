@@ -11,7 +11,13 @@ from infraestructura.base_de_datos.repositorios.repositorio_conversacion import 
 from infraestructura.base_de_datos.repositorios.repositorio_mensaje import RepositorioMensaje
 from infraestructura.estadistica.motor_estadistico import MotorEstadistico
 from infraestructura.ia.interfaz_interpretador import InterpretadorInforme
+from infraestructura.ia.interfaz_interpretador_conversacional import (
+    InterpretadorConversacional,
+)
 from infraestructura.ia.interpretador_reglas import InterpretadorReglas
+from infraestructura.ia.interpretador_conversacional_reglas import (
+    InterpretadorConversacionalReglas,
+)
 
 
 def obtener_repositorio_usuario(
@@ -50,3 +56,7 @@ def obtener_motor_estadistico() -> MotorEstadistico:
 
 def obtener_interpretador_informe() -> InterpretadorInforme:
     return InterpretadorReglas()
+
+
+def obtener_interpretador_conversacional() -> InterpretadorConversacional:
+    return InterpretadorConversacionalReglas()
