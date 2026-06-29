@@ -1,0 +1,67 @@
+export interface TokenRespuesta {
+  access_token: string;
+  refresh_token: string;
+  token_type: string;
+}
+
+export interface DatasetRespuesta {
+  id: string;
+  usuario_id: string;
+  nombre_archivo: string;
+  tipo_archivo: string;
+  tamaño_archivo: number;
+  numero_filas: number | null;
+  numero_columnas: number | null;
+  columnas: string[] | null;
+  tipos_datos: Record<string, string> | null;
+  fecha_creacion: string;
+  fecha_actualizacion: string;
+}
+
+export interface EstadisticasColumnaNumerica {
+  columna: string;
+  media: number;
+  mediana: number;
+  desviacion_estandar: number;
+  minimo: number;
+  maximo: number;
+}
+
+export interface EstadisticasDescriptivas {
+  metadatos: {
+    numero_filas: number;
+    numero_columnas: number;
+    nombres_columnas: string[];
+    tipos_datos: Record<string, string>;
+  };
+  valores_nulos: {
+    por_columna: Record<string, number>;
+    total: number;
+  };
+  clasificacion_variables: {
+    numericas: string[];
+    categoricas: string[];
+  };
+  columnas: EstadisticasColumnaNumerica[];
+}
+
+export interface InformeRespuesta {
+  id: string;
+  usuario_id: string;
+  dataset_id: string;
+  guardado: boolean;
+  resumen_ejecutivo: string | null;
+  estadisticas_descriptivas: EstadisticasDescriptivas | null;
+  analisis_distribucion: Record<string, unknown> | null;
+  correlaciones: Record<string, unknown> | null;
+  deteccion_outliers: Record<string, unknown> | null;
+  hallazgos_principales: Record<string, unknown> | null;
+  recomendaciones: Record<string, unknown> | null;
+  conclusiones: string | null;
+  fecha_creacion: string;
+  fecha_actualizacion: string;
+}
+
+export interface ErrorApi {
+  detalle: string;
+}

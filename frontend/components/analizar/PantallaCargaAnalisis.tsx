@@ -3,22 +3,14 @@
 import { useEffect, useState } from "react";
 
 const MENSAJES_CARGA = [
-  "Preparando el archivo...",
-  "Detectando columnas...",
-  "Calculando estadísticas...",
-  "Generando interpretación...",
+  "Subiendo tu archivo...",
+  "Analizando con el motor estadístico de Claridata...",
+  "Calculando estadísticas, correlaciones y distribuciones...",
 ];
 
-const DURACION_TOTAL_MS = 2800;
-const DURACION_POR_MENSAJE_MS = DURACION_TOTAL_MS / MENSAJES_CARGA.length;
+const DURACION_POR_MENSAJE_MS = 2200;
 
-interface PropiedadesPantallaCargaAnalisis {
-  alFinalizar: () => void;
-}
-
-export function PantallaCargaAnalisis({
-  alFinalizar,
-}: PropiedadesPantallaCargaAnalisis) {
+export function PantallaCargaAnalisis() {
   const [indiceMensaje, setIndiceMensaje] = useState(0);
 
   useEffect(() => {
@@ -28,15 +20,8 @@ export function PantallaCargaAnalisis({
       );
     }, DURACION_POR_MENSAJE_MS);
 
-    const temporizadorFinal = window.setTimeout(() => {
-      alFinalizar();
-    }, DURACION_TOTAL_MS);
-
-    return () => {
-      window.clearInterval(intervalo);
-      window.clearTimeout(temporizadorFinal);
-    };
-  }, [alFinalizar]);
+    return () => window.clearInterval(intervalo);
+  }, []);
 
   return (
     <div className="flex flex-col items-center justify-center gap-8 py-24 text-center">
