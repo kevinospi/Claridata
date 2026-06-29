@@ -5,6 +5,8 @@ import { DefinicionModo } from "@/tipos/modo";
 interface PropiedadesTarjetaModo {
   modo: DefinicionModo;
   estaEnHover: boolean;
+  estaExpandiendo: boolean;
+  estaDesapareciendo: boolean;
   alIniciarHover: () => void;
   alFinalizarHover: () => void;
   alSeleccionar: () => void;
@@ -13,6 +15,8 @@ interface PropiedadesTarjetaModo {
 export function TarjetaModo({
   modo,
   estaEnHover,
+  estaExpandiendo,
+  estaDesapareciendo,
   alIniciarHover,
   alFinalizarHover,
   alSeleccionar,
@@ -20,6 +24,12 @@ export function TarjetaModo({
   const colorTexto = modo.colorAcento === "amarillo" ? "#3F2D03" : "#022C33";
   const colorTextoSecundario =
     modo.colorAcento === "amarillo" ? "#6B4E0A" : "#0A4A52";
+
+  const claseAltura = estaExpandiendo
+    ? "flex-grow-[10]"
+    : estaDesapareciendo
+      ? "flex-grow-0 basis-0 opacity-0"
+      : "flex-1";
 
   return (
     <button
@@ -33,30 +43,20 @@ export function TarjetaModo({
         animation: "aparicion-suave 700ms ease-out 750ms forwards",
       }}
       className={`
-        group relative flex h-full w-full flex-1 flex-col
-        items-center justify-center px-6 py-16
+        group relative flex w-full flex-col
+        items-center justify-center overflow-hidden px-6 py-16
         text-center opacity-0
         transition-all duration-700 ease-claridata-expo
-        ${estaEnHover ? "scale-[1.02] brightness-[1.15]" : "scale-100 brightness-100"}
+        ${claseAltura}
+        ${estaEnHover && !estaExpandiendo ? "scale-[1.01] brightness-[1.15]" : "scale-100 brightness-100"}
       `}
     >
-      {/*
-        PUNTO DE PREPARACIÓN — FASE SIGUIENTE:
-        Aquí se agregará la lógica de expansión a pantalla completa al hacer click.
-        El estado `modoSeleccionado` ya existe en SelectorModo y ya controla el
-        delay de 550ms antes de la navegación. La fase futura debe:
-        1. Recibir una prop `estaExpandiendo` (booleano) en este componente.
-        2. Agregar clases condicionales de ancho/posición cuando estaExpandiendo === true.
-        3. Agregar una clase de "fade-out" para la mitad NO seleccionada.
-        No se implementa todavía — solo se deja documentado el punto exacto.
-      */}
-
       <h2
         style={{ color: colorTexto }}
         className={`
           text-4xl font-bold tracking-tight transition-transform duration-500
           md:text-5xl
-          ${estaEnHover ? "scale-[1.03]" : "scale-100"}
+          ${estaEnHover && !estaExpandiendo ? "scale-[1.03]" : "scale-100"}
         `}
       >
         {modo.titulo}

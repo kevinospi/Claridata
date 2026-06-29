@@ -1,5 +1,5 @@
-import { SeccionPlaceholder } from "@/components/ui/SeccionPlaceholder";
+import { PaginaAnalizar } from "@/components/analizar/PaginaAnalizar";
 
-export default function PaginaAnalizar() {
-  return <SeccionPlaceholder titulo="Analizar" colorAcento="cian" />;
+export default function RutaAnalizar() {
+  return <PaginaAnalizar />;
 }
