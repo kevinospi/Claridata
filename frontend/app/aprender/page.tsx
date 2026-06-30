@@ -1,5 +1,5 @@
-import { SeccionPlaceholder } from "@/components/ui/SeccionPlaceholder";
+import { PaginaAprender } from "@/components/aprender/PaginaAprender";
 
-export default function PaginaAprender() {
-  return <SeccionPlaceholder titulo="Aprender" colorAcento="amarillo" />;
+export default function RutaAprender() {
+  return <PaginaAprender />;
 }
