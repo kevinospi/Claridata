@@ -2,10 +2,10 @@
 
 import { useRouter } from "next/navigation";
 import { EncabezadoApp } from "@/components/compartidos/EncabezadoApp";
-import { TarjetaTema } from "./TarjetaTema";
+import { TarjetaTema } from "@/components/aprender/TarjetaTema";
 import { TEMAS } from "@/lib/aprendizaje/indice";
 
-export function PaginaAprender() {
+export default function PaginaAprender() {
   const router = useRouter();
 
   return (
