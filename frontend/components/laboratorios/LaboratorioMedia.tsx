@@ -1,15 +1,19 @@
 "use client";
 
-import { useReducer } from "react";
+import { useReducer, useMemo } from "react";
 import { ConfiguracionLaboratorio } from "@/tipos/laboratorio";
 import { calcularTodos } from "@/lib/laboratorios/calculos";
 import {
   ESTADO_INICIAL_SALARIOS,
   reducerLaboratorio,
 } from "@/lib/laboratorios/estadoLaboratorio";
+import { detectarMomento } from "@/lib/laboratorios/narrativa";
 import { LineaDatosInteractiva } from "./LineaDatosInteractiva";
 import { PanelIndicadores } from "./PanelIndicadores";
 import { ControlesLaboratorio } from "./ControlesLaboratorio";
+import { PreguntaDinamica } from "./PreguntaDinamica";
+import { RetosLaboratorio } from "./RetosLaboratorio";
+import { useState } from "react";
 
 const CONFIGURACION: ConfiguracionLaboratorio = {
   valorMinimo: 0,
@@ -25,8 +29,17 @@ export function LaboratorioMedia() {
     reducerLaboratorio,
     ESTADO_INICIAL_SALARIOS,
   );
+  const [retoActivo, setRetoActivo] = useState<string | null>(null);
 
-  const resultados = calcularTodos(estado.puntos);
+  const resultados = useMemo(
+    () => calcularTodos(estado.puntos),
+    [estado.puntos],
+  );
+
+  const momento = useMemo(
+    () => detectarMomento(estado.puntos, resultados),
+    [estado.puntos, resultados],
+  );
 
   return (
     <div className="flex flex-col gap-8">
@@ -34,7 +47,7 @@ export function LaboratorioMedia() {
         <h1 className="text-3xl font-extrabold tracking-tight text-claridata-texto md:text-4xl">
           {CONFIGURACION.titulo}
         </h1>
-        <p className="mt-3 max-w-xl mx-auto text-base text-claridata-textoSecundario">
+        <p className="mx-auto mt-3 max-w-xl text-base text-claridata-textoSecundario">
           {CONFIGURACION.descripcionContexto}
         </p>
       </div>
@@ -62,9 +75,16 @@ export function LaboratorioMedia() {
         moda={resultados.moda}
       />
 
+      <PreguntaDinamica momento={momento} />
+
       <ControlesLaboratorio
         cantidadPuntos={estado.puntos.length}
         alAgregarPunto={() => despachar({ tipo: "AGREGAR_PUNTO" })}
+      />
+
+      <RetosLaboratorio
+        retoActivo={retoActivo}
+        alSeleccionarReto={setRetoActivo}
       />
     </div>
   );

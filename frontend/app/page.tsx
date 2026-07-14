@@ -1,5 +1,10 @@
 import { PaginaBienvenida } from "@/components/bienvenida/PaginaBienvenida";
+import { GuardAutenticacion } from "@/components/auth/GuardAutenticacion";
 
 export default function Inicio() {
-  return <PaginaBienvenida />;
+  return (
+    <GuardAutenticacion>
+      <PaginaBienvenida />
+    </GuardAutenticacion>
+  );
 }
