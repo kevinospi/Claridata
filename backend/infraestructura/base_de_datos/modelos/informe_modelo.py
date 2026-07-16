@@ -28,7 +28,6 @@ class InformeModelo(AuditoriaMixin, Base):
     )
 
     titulo: Mapped[str] = mapped_column(String(150), nullable=False)
-
     guardado: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
 
     resumen_ejecutivo: Mapped[str | None] = mapped_column(Text, nullable=True)
@@ -39,6 +38,7 @@ class InformeModelo(AuditoriaMixin, Base):
     hallazgos_principales: Mapped[dict | None] = mapped_column(JSON, nullable=True)
     recomendaciones: Mapped[dict | None] = mapped_column(JSON, nullable=True)
     conclusiones: Mapped[str | None] = mapped_column(Text, nullable=True)
+    descubrimientos: Mapped[list | None] = mapped_column(JSON, nullable=True)
 
     usuario: Mapped["UsuarioModelo"] = relationship(back_populates="informes")
     dataset: Mapped["DatasetModelo"] = relationship(back_populates="informe")

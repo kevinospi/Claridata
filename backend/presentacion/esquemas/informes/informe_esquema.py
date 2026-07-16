@@ -1,6 +1,17 @@
 from datetime import datetime
+from typing import Any
 
 from pydantic import BaseModel, Field, field_validator
+
+
+class DescubrimientoEsquema(BaseModel):
+    tipo: str
+    titulo: str
+    descripcion: str
+    severidad: str
+    columna: str | None = None
+    valor: float | None = None
+    recomendacion: str | None = None
 
 
 class InformeRespuestaEsquema(BaseModel):
@@ -17,6 +28,7 @@ class InformeRespuestaEsquema(BaseModel):
     hallazgos_principales: dict | None
     recomendaciones: dict | None
     conclusiones: str | None
+    descubrimientos: list[dict] | None = None
     fecha_creacion: datetime
     fecha_actualizacion: datetime
 

@@ -18,7 +18,7 @@ from presentacion.api.dependencias.dependencias_db import (
 from presentacion.api.dependencias.dependencias_usuario import obtener_usuario_actual_id
 from presentacion.esquemas.datasets.dataset_esquema import DatasetRespuestaEsquema
 from presentacion.esquemas.informes.informe_esquema import InformeRespuestaEsquema
-
+from infraestructura.estadistica.motor_descubrimientos import MotorDescubrimientos
 router = APIRouter()
 
 
@@ -80,19 +80,20 @@ def obtener_dataset(
     return DatasetRespuestaEsquema.model_validate(dataset)
 
 
-@router.post(
-    "/datasets/{dataset_id}/analizar",
-    response_model=InformeRespuestaEsquema,
-    tags=["Datasets"],
-)
+
+@router.post("/datasets/{dataset_id}/analizar", ...)
 def analizar_dataset(
     dataset_id: str,
     repositorio_dataset: RepositorioDataset = Depends(obtener_repositorio_dataset),
     repositorio_informe: RepositorioInforme = Depends(obtener_repositorio_informe),
-    motor_estadistico: MotorEstadistico = Depends(obtener_motor_estadistico),
     usuario_id: str = Depends(obtener_usuario_actual_id),
-) -> InformeRespuestaEsquema:
-    caso_de_uso = AnalizarDataset(repositorio_dataset, repositorio_informe, motor_estadistico)
+):
+    caso_de_uso = AnalizarDataset(
+        repositorio_dataset=repositorio_dataset,
+        repositorio_informe=repositorio_informe,
+        motor_estadistico=MotorEstadistico(),
+        motor_descubrimientos=MotorDescubrimientos(),
+    )
     informe = caso_de_uso.ejecutar(dataset_id, usuario_id)
     return InformeRespuestaEsquema.model_validate(informe)
 
