@@ -44,7 +44,21 @@ export interface EstadisticasDescriptivas {
   };
   columnas: EstadisticasColumnaNumerica[];
 }
+export type SeveridadDescubrimiento =
+  | "INFORMATIVO"
+  | "ATENCION"
+  | "IMPORTANTE"
+  | "CRITICO";
 
+export interface DescubrimientoRespuesta {
+  tipo: string;
+  titulo: string;
+  descripcion: string;
+  severidad: SeveridadDescubrimiento;
+  columna: string | null;
+  valor: number | null;
+  recomendacion: string | null;
+}
 export interface InformeDetalleRespuesta {
   id: string;
   usuario_id: string;
@@ -59,6 +73,7 @@ export interface InformeDetalleRespuesta {
   hallazgos_principales: Record<string, unknown> | null;
   recomendaciones: Record<string, unknown> | null;
   conclusiones: string | null;
+  descubrimientos: DescubrimientoRespuesta[] | null;
   fecha_creacion: string;
   fecha_actualizacion: string;
 }

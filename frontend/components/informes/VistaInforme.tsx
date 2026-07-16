@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { InformeDetalleRespuesta } from "@/tipos/api";
 import { ModalRenombrarInforme } from "./ModalRenombrarInforme";
+import { SeccionDescubrimientos } from "./SeccionDescubrimientos";
 import { renombrarInforme } from "@/lib/api/informes";
 
 interface PropiedadesVistaInforme {
@@ -54,7 +55,8 @@ export function VistaInforme({
   const [errorRenombrar, setErrorRenombrar] = useState<string | null>(null);
 
   const metadatos = informe.estadisticas_descriptivas?.metadatos;
-  const clasificacion = informe.estadisticas_descriptivas?.clasificacion_variables;
+  const clasificacion =
+    informe.estadisticas_descriptivas?.clasificacion_variables;
   const porcentajeNulos = calcularPorcentajeNulos(informe);
 
   const manejarConfirmarRenombrar = async (nuevoTitulo: string) => {
@@ -131,6 +133,14 @@ export function VistaInforme({
           valor={informe.guardado ? "Guardado" : "Analizado"}
         />
       </div>
+
+      {informe.descubrimientos && informe.descubrimientos.length >= 0 && (
+        <div className="rounded-2xl border border-white/10 bg-white/[0.02] px-6 py-6">
+          <SeccionDescubrimientos
+            descubrimientos={informe.descubrimientos}
+          />
+        </div>
+      )}
 
       <p className="text-center text-sm text-claridata-textoSecundario">
         Análisis realizado el {formatearFecha(informe.fecha_creacion)}
