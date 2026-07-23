@@ -76,6 +76,7 @@ export interface InformeDetalleRespuesta {
   descubrimientos: DescubrimientoRespuesta[] | null;
   fecha_creacion: string;
   fecha_actualizacion: string;
+  interpretacion_profesional: SeccionInterpretacionRespuesta[] | null;
 }
 
 export interface InformeResumenRespuesta {
@@ -88,4 +89,10 @@ export interface InformeResumenRespuesta {
 
 export interface ErrorApi {
   detalle: string;
+}
+
+export interface SeccionInterpretacionRespuesta {
+  tipo: string;
+  titulo: string;
+  parrafos: string[];
 }

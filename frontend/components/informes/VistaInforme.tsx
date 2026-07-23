@@ -5,6 +5,8 @@ import { InformeDetalleRespuesta } from "@/tipos/api";
 import { ModalRenombrarInforme } from "./ModalRenombrarInforme";
 import { SeccionDescubrimientos } from "./SeccionDescubrimientos";
 import { renombrarInforme } from "@/lib/api/informes";
+import { SeccionInterpretacion } from "./SeccionInterpretacion";
+
 
 interface PropiedadesVistaInforme {
   informe: InformeDetalleRespuesta;
@@ -155,6 +157,14 @@ export function VistaInforme({
           Analizar otro archivo
         </button>
       )}
+      {informe.interpretacion_profesional &&
+        informe.interpretacion_profesional.length > 0 && (
+        <div className="rounded-2xl border border-white/10 bg-white/[0.02] px-6 py-6">
+          <SeccionInterpretacion
+            secciones={informe.interpretacion_profesional}
+      />
+    </div>
+  )}
 
       <ModalRenombrarInforme
         abierto={modalAbierto}
@@ -165,4 +175,5 @@ export function VistaInforme({
       />
     </div>
   );
+  
 }
