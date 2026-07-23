@@ -8,6 +8,7 @@ from infraestructura.estadistica.lector_dataset import FormatoArchivoNoSoportado
 from infraestructura.estadistica.motor_estadistico import MotorEstadistico
 from infraestructura.estadistica.motor_descubrimientos import MotorDescubrimientos
 from infraestructura.estadistica.motor_interpretacion_profesional import MotorInterpretacionProfesional
+from infraestructura.estadistica.motor_recomendaciones import MotorRecomendacionesInteligentes
 from aplicacion.excepciones import (
     AccesoDenegadoError,
     DatasetNoEncontradoError,
@@ -23,12 +24,14 @@ class AnalizarDataset:
         motor_estadistico: MotorEstadistico,
         motor_descubrimientos: MotorDescubrimientos,
         motor_interpretacion: MotorInterpretacionProfesional,
+        motor_recomendaciones: MotorRecomendacionesInteligentes,
     ) -> None:
         self._repositorio_dataset = repositorio_dataset
         self._repositorio_informe = repositorio_informe
         self._motor_estadistico = motor_estadistico
         self._motor_descubrimientos = motor_descubrimientos
         self._motor_interpretacion = motor_interpretacion
+        self._motor_recomendaciones = motor_recomendaciones
 
     def ejecutar(self, dataset_id: str, usuario_id: str) -> InformeModelo:
         dataset = self._repositorio_dataset.obtener_por_id(dataset_id)
@@ -68,14 +71,21 @@ class AnalizarDataset:
             resultado_descubrimientos,
         )
 
+        resultado_recomendaciones = self._motor_recomendaciones.recomendar(
+            resultado_estadistico,
+            resultado_descubrimientos,
+            resultado_interpretacion,
+        )
+
         self._actualizar_metadatos_dataset(dataset, resultado_estadistico)
         self._repositorio_dataset.actualizar(dataset)
         self._repositorio_dataset.guardar_cambios()
 
-        informe_existente = self._repositorio_informe.obtener_por_dataset(dataset_id)
-
         descubrimientos_dict = resultado_descubrimientos.como_lista_dict()
         interpretacion_dict = resultado_interpretacion.como_lista_dict()
+        recomendaciones_dict = resultado_recomendaciones.como_lista_dict()
+
+        informe_existente = self._repositorio_informe.obtener_por_dataset(dataset_id)
 
         if informe_existente is not None:
             self._actualizar_informe(
@@ -83,6 +93,7 @@ class AnalizarDataset:
                 resultado_estadistico,
                 descubrimientos_dict,
                 interpretacion_dict,
+                recomendaciones_dict,
             )
             self._repositorio_informe.actualizar(informe_existente)
             self._repositorio_informe.guardar_cambios()
@@ -94,6 +105,7 @@ class AnalizarDataset:
             resultado_estadistico,
             descubrimientos_dict,
             interpretacion_dict,
+            recomendaciones_dict,
         )
         self._repositorio_informe.crear(nuevo_informe)
         self._repositorio_informe.guardar_cambios()
@@ -114,6 +126,7 @@ class AnalizarDataset:
         resultado: ResultadoMotorEstadistico,
         descubrimientos: list[dict],
         interpretacion: list[dict],
+        recomendaciones: list[dict],
     ) -> InformeModelo:
         informe = InformeModelo(
             usuario_id=usuario_id,
@@ -121,7 +134,9 @@ class AnalizarDataset:
             titulo=dataset.nombre_archivo,
             guardado=False,
         )
-        self._actualizar_informe(informe, resultado, descubrimientos, interpretacion)
+        self._actualizar_informe(
+            informe, resultado, descubrimientos, interpretacion, recomendaciones
+        )
         return informe
 
     def _actualizar_informe(
@@ -130,6 +145,7 @@ class AnalizarDataset:
         resultado: ResultadoMotorEstadistico,
         descubrimientos: list[dict],
         interpretacion: list[dict],
+        recomendaciones: list[dict],
     ) -> None:
         informe.estadisticas_descriptivas = self._mapear_estadisticas_descriptivas(resultado)
         informe.analisis_distribucion = self._mapear_distribuciones(resultado)
@@ -137,6 +153,7 @@ class AnalizarDataset:
         informe.deteccion_outliers = self._mapear_outliers(resultado)
         informe.descubrimientos = descubrimientos
         informe.interpretacion_profesional = interpretacion
+        informe.recomendaciones_inteligentes = recomendaciones
 
     def _mapear_estadisticas_descriptivas(
         self, resultado: ResultadoMotorEstadistico

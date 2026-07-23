@@ -17,14 +17,12 @@ class InformeModelo(AuditoriaMixin, Base):
     __tablename__ = "informes"
 
     usuario_id: Mapped[str] = mapped_column(
-        String(36), ForeignKey("usuarios.id", ondelete="CASCADE"), nullable=False, index=True
+        String(36), ForeignKey("usuarios.id", ondelete="CASCADE"),
+        nullable=False, index=True,
     )
     dataset_id: Mapped[str] = mapped_column(
-        String(36),
-        ForeignKey("datasets.id", ondelete="CASCADE"),
-        nullable=False,
-        unique=True,
-        index=True,
+        String(36), ForeignKey("datasets.id", ondelete="CASCADE"),
+        nullable=False, unique=True, index=True,
     )
 
     titulo: Mapped[str] = mapped_column(String(150), nullable=False)
@@ -40,16 +38,14 @@ class InformeModelo(AuditoriaMixin, Base):
     conclusiones: Mapped[str | None] = mapped_column(Text, nullable=True)
     descubrimientos: Mapped[list | None] = mapped_column(JSON, nullable=True)
     interpretacion_profesional: Mapped[list | None] = mapped_column(JSON, nullable=True)
+    recomendaciones_inteligentes: Mapped[list | None] = mapped_column(JSON, nullable=True)
 
     usuario: Mapped["UsuarioModelo"] = relationship(back_populates="informes")
     dataset: Mapped["DatasetModelo"] = relationship(back_populates="informe")
 
     graficas: Mapped[list["GraficaModelo"]] = relationship(
-        back_populates="informe",
-        cascade="all, delete-orphan",
+        back_populates="informe", cascade="all, delete-orphan",
     )
-
     conversaciones: Mapped[list["ConversacionModelo"]] = relationship(
-        back_populates="informe",
-        cascade="all, delete-orphan",
+        back_populates="informe", cascade="all, delete-orphan",
     )

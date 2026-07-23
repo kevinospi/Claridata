@@ -23,6 +23,7 @@ from infraestructura.estadistica.motor_descubrimientos import MotorDescubrimient
 router = APIRouter()
 from infraestructura.estadistica.motor_interpretacion_profesional import MotorInterpretacionProfesional
 from presentacion.api.dependencias.dependencias_db import obtener_motor_interpretacion
+from infraestructura.estadistica.motor_recomendaciones import MotorRecomendacionesInteligentes
 
 
 
@@ -104,6 +105,7 @@ def analizar_dataset(
     motor_estadistico=MotorEstadistico(),
     motor_descubrimientos=MotorDescubrimientos(),
     motor_interpretacion=MotorInterpretacionProfesional(),
+    motor_recomendaciones=MotorRecomendacionesInteligentes(),
 )
 
     informe = caso_de_uso.ejecutar(

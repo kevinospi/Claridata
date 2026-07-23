@@ -30,6 +30,7 @@ class InformeRespuestaEsquema(BaseModel):
     conclusiones: str | None
     descubrimientos: list[dict] | None = None
     interpretacion_profesional: list[dict] | None = None
+    recomendaciones_inteligentes: list[dict] | None = None
     fecha_creacion: datetime
     fecha_actualizacion: datetime
 
