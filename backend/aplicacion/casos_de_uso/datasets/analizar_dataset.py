@@ -7,6 +7,7 @@ from infraestructura.estadistica.dto_resultados import ResultadoMotorEstadistico
 from infraestructura.estadistica.lector_dataset import FormatoArchivoNoSoportadoError
 from infraestructura.estadistica.motor_estadistico import MotorEstadistico
 from infraestructura.estadistica.motor_descubrimientos import MotorDescubrimientos
+from infraestructura.estadistica.motor_interpretacion_profesional import MotorInterpretacionProfesional
 from aplicacion.excepciones import (
     AccesoDenegadoError,
     DatasetNoEncontradoError,
@@ -21,11 +22,13 @@ class AnalizarDataset:
         repositorio_informe: RepositorioInforme,
         motor_estadistico: MotorEstadistico,
         motor_descubrimientos: MotorDescubrimientos,
+        motor_interpretacion: MotorInterpretacionProfesional,
     ) -> None:
         self._repositorio_dataset = repositorio_dataset
         self._repositorio_informe = repositorio_informe
         self._motor_estadistico = motor_estadistico
         self._motor_descubrimientos = motor_descubrimientos
+        self._motor_interpretacion = motor_interpretacion
 
     def ejecutar(self, dataset_id: str, usuario_id: str) -> InformeModelo:
         dataset = self._repositorio_dataset.obtener_por_id(dataset_id)
@@ -40,7 +43,7 @@ class AnalizarDataset:
             )
 
         try:
-            resultado = self._motor_estadistico.analizar(
+            resultado_estadistico = self._motor_estadistico.analizar(
                 ruta_archivo=dataset.ruta_archivo,
                 tipo_archivo=dataset.tipo_archivo,
             )
@@ -56,30 +59,49 @@ class AnalizarDataset:
                 f"No fue posible analizar el dataset '{dataset_id}': {error}"
             ) from error
 
-        resultado_descubrimientos = self._motor_descubrimientos.analizar(resultado)
+        resultado_descubrimientos = self._motor_descubrimientos.analizar(
+            resultado_estadistico
+        )
 
-        self._actualizar_metadatos_dataset(dataset, resultado)
+        resultado_interpretacion = self._motor_interpretacion.interpretar(
+            resultado_estadistico,
+            resultado_descubrimientos,
+        )
+
+        self._actualizar_metadatos_dataset(dataset, resultado_estadistico)
         self._repositorio_dataset.actualizar(dataset)
         self._repositorio_dataset.guardar_cambios()
 
         informe_existente = self._repositorio_informe.obtener_por_dataset(dataset_id)
 
+        descubrimientos_dict = resultado_descubrimientos.como_lista_dict()
+        interpretacion_dict = resultado_interpretacion.como_lista_dict()
+
         if informe_existente is not None:
             self._actualizar_informe(
-                informe_existente, resultado, resultado_descubrimientos.como_lista_dict()
+                informe_existente,
+                resultado_estadistico,
+                descubrimientos_dict,
+                interpretacion_dict,
             )
             self._repositorio_informe.actualizar(informe_existente)
             self._repositorio_informe.guardar_cambios()
             return informe_existente
 
         nuevo_informe = self._construir_informe(
-            dataset, usuario_id, resultado, resultado_descubrimientos.como_lista_dict()
+            dataset,
+            usuario_id,
+            resultado_estadistico,
+            descubrimientos_dict,
+            interpretacion_dict,
         )
         self._repositorio_informe.crear(nuevo_informe)
         self._repositorio_informe.guardar_cambios()
         return nuevo_informe
 
-    def _actualizar_metadatos_dataset(self, dataset, resultado: ResultadoMotorEstadistico) -> None:
+    def _actualizar_metadatos_dataset(
+        self, dataset, resultado: ResultadoMotorEstadistico
+    ) -> None:
         dataset.numero_filas = resultado.metadatos.numero_filas
         dataset.numero_columnas = resultado.metadatos.numero_columnas
         dataset.columnas = resultado.metadatos.nombres_columnas
@@ -91,15 +113,15 @@ class AnalizarDataset:
         usuario_id: str,
         resultado: ResultadoMotorEstadistico,
         descubrimientos: list[dict],
+        interpretacion: list[dict],
     ) -> InformeModelo:
         informe = InformeModelo(
             usuario_id=usuario_id,
             dataset_id=dataset.id,
             titulo=dataset.nombre_archivo,
             guardado=False,
-            descubrimientos=descubrimientos,
         )
-        self._actualizar_informe(informe, resultado, descubrimientos)
+        self._actualizar_informe(informe, resultado, descubrimientos, interpretacion)
         return informe
 
     def _actualizar_informe(
@@ -107,14 +129,18 @@ class AnalizarDataset:
         informe: InformeModelo,
         resultado: ResultadoMotorEstadistico,
         descubrimientos: list[dict],
+        interpretacion: list[dict],
     ) -> None:
         informe.estadisticas_descriptivas = self._mapear_estadisticas_descriptivas(resultado)
         informe.analisis_distribucion = self._mapear_distribuciones(resultado)
         informe.correlaciones = self._mapear_correlaciones(resultado)
         informe.deteccion_outliers = self._mapear_outliers(resultado)
         informe.descubrimientos = descubrimientos
+        informe.interpretacion_profesional = interpretacion
 
-    def _mapear_estadisticas_descriptivas(self, resultado: ResultadoMotorEstadistico) -> dict:
+    def _mapear_estadisticas_descriptivas(
+        self, resultado: ResultadoMotorEstadistico
+    ) -> dict:
         return {
             "metadatos": {
                 "numero_filas": resultado.metadatos.numero_filas,
@@ -143,7 +169,9 @@ class AnalizarDataset:
             ],
         }
 
-    def _mapear_distribuciones(self, resultado: ResultadoMotorEstadistico) -> dict:
+    def _mapear_distribuciones(
+        self, resultado: ResultadoMotorEstadistico
+    ) -> dict:
         return {
             "columnas": [
                 {
@@ -155,7 +183,9 @@ class AnalizarDataset:
             ]
         }
 
-    def _mapear_correlaciones(self, resultado: ResultadoMotorEstadistico) -> dict | None:
+    def _mapear_correlaciones(
+        self, resultado: ResultadoMotorEstadistico
+    ) -> dict | None:
         if resultado.correlaciones is None:
             return None
         return {
@@ -171,7 +201,9 @@ class AnalizarDataset:
             ],
         }
 
-    def _mapear_outliers(self, resultado: ResultadoMotorEstadistico) -> dict:
+    def _mapear_outliers(
+        self, resultado: ResultadoMotorEstadistico
+    ) -> dict:
         return {
             "columnas": [
                 {

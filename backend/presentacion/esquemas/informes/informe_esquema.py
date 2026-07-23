@@ -29,6 +29,7 @@ class InformeRespuestaEsquema(BaseModel):
     recomendaciones: dict | None
     conclusiones: str | None
     descubrimientos: list[dict] | None = None
+    interpretacion_profesional: list[dict] | None = None
     fecha_creacion: datetime
     fecha_actualizacion: datetime
 
@@ -67,3 +68,8 @@ class InformeRenombrarEsquema(BaseModel):
         if len(valor_limpio) < 3:
             raise ValueError("El título debe tener al menos 3 caracteres.")
         return valor_limpio
+    
+class ParrafoInterpretacion(BaseModel):
+    tipo: str
+    titulo: str
+    parrafos: list[str]

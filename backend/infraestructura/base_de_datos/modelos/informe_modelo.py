@@ -39,6 +39,7 @@ class InformeModelo(AuditoriaMixin, Base):
     recomendaciones: Mapped[dict | None] = mapped_column(JSON, nullable=True)
     conclusiones: Mapped[str | None] = mapped_column(Text, nullable=True)
     descubrimientos: Mapped[list | None] = mapped_column(JSON, nullable=True)
+    interpretacion_profesional: Mapped[list | None] = mapped_column(JSON, nullable=True)
 
     usuario: Mapped["UsuarioModelo"] = relationship(back_populates="informes")
     dataset: Mapped["DatasetModelo"] = relationship(back_populates="informe")

@@ -21,6 +21,9 @@ from presentacion.esquemas.datasets.dataset_esquema import DatasetRespuestaEsque
 from presentacion.esquemas.informes.informe_esquema import InformeRespuestaEsquema
 from infraestructura.estadistica.motor_descubrimientos import MotorDescubrimientos
 router = APIRouter()
+from infraestructura.estadistica.motor_interpretacion_profesional import MotorInterpretacionProfesional
+from presentacion.api.dependencias.dependencias_db import obtener_motor_interpretacion
+
 
 
 @router.post(
@@ -98,8 +101,9 @@ def analizar_dataset(
     caso_de_uso = AnalizarDataset(
     repositorio_dataset=repositorio_dataset,
     repositorio_informe=repositorio_informe,
-    motor_estadistico=motor_estadistico,
-    motor_descubrimientos=motor_descubrimientos,
+    motor_estadistico=MotorEstadistico(),
+    motor_descubrimientos=MotorDescubrimientos(),
+    motor_interpretacion=MotorInterpretacionProfesional(),
 )
 
     informe = caso_de_uso.ejecutar(

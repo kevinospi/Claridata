@@ -13,6 +13,7 @@ from infraestructura.ia.interfaz_interpretador import InterpretadorInforme
 from infraestructura.ia.interpretador_reglas import InterpretadorReglas
 from infraestructura.ia.interfaz_interpretador_conversacional import InterpretadorConversacional
 from infraestructura.ia.interpretador_conversacional_reglas import InterpretadorConversacionalReglas
+from infraestructura.estadistica.motor_interpretacion_profesional import MotorInterpretacionProfesional
 
 
 def obtener_sesion_db():
@@ -60,3 +61,7 @@ def obtener_interpretador_informe() -> InterpretadorInforme:
 
 def obtener_interpretador_conversacional() -> InterpretadorConversacional:
     return InterpretadorConversacionalReglas()
+
+
+def obtener_motor_interpretacion() -> MotorInterpretacionProfesional:
+    return MotorInterpretacionProfesional()
