@@ -12,6 +12,7 @@ from infraestructura.base_de_datos.repositorios.repositorio_informe import Repos
 from infraestructura.estadistica.motor_estadistico import MotorEstadistico
 from presentacion.api.dependencias.dependencias_db import (
     obtener_motor_estadistico,
+    obtener_motor_descubrimientos,
     obtener_repositorio_dataset,
     obtener_repositorio_informe,
 )
@@ -81,20 +82,31 @@ def obtener_dataset(
 
 
 
-@router.post("/datasets/{dataset_id}/analizar", ...)
+@router.post(
+    "/datasets/{dataset_id}/analizar",
+    response_model=InformeRespuestaEsquema,
+    tags=["Datasets"],
+)
 def analizar_dataset(
     dataset_id: str,
     repositorio_dataset: RepositorioDataset = Depends(obtener_repositorio_dataset),
     repositorio_informe: RepositorioInforme = Depends(obtener_repositorio_informe),
+    motor_estadistico: MotorEstadistico = Depends(obtener_motor_estadistico),
+    motor_descubrimientos: MotorDescubrimientos = Depends(obtener_motor_descubrimientos),
     usuario_id: str = Depends(obtener_usuario_actual_id),
 ):
     caso_de_uso = AnalizarDataset(
-        repositorio_dataset=repositorio_dataset,
-        repositorio_informe=repositorio_informe,
-        motor_estadistico=MotorEstadistico(),
-        motor_descubrimientos=MotorDescubrimientos(),
+    repositorio_dataset=repositorio_dataset,
+    repositorio_informe=repositorio_informe,
+    motor_estadistico=motor_estadistico,
+    motor_descubrimientos=motor_descubrimientos,
+)
+
+    informe = caso_de_uso.ejecutar(
+        dataset_id=dataset_id,
+        usuario_id=usuario_id,
     )
-    informe = caso_de_uso.ejecutar(dataset_id, usuario_id)
+
     return InformeRespuestaEsquema.model_validate(informe)
 
 

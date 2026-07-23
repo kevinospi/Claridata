@@ -1,4 +1,5 @@
 from sqlalchemy.orm import Session
+from fastapi import Depends
 
 from infraestructura.base_de_datos.sesion import SessionLocal
 from infraestructura.base_de_datos.repositorios.repositorio_dataset import RepositorioDataset
@@ -25,11 +26,8 @@ def obtener_sesion_db():
         sesion.close()
 
 
-def obtener_repositorio_usuario(sesion: Session = None):
-    from fastapi import Depends
-    def _inner(sesion: Session = Depends(obtener_sesion_db)):
-        return RepositorioUsuario(sesion)
-    return Depends(_inner)
+def obtener_repositorio_usuario(sesion: Session = Depends(obtener_sesion_db)):
+    return RepositorioUsuario(sesion)
 
 
 def obtener_repositorio_dataset(sesion: Session = Depends(obtener_sesion_db)):
