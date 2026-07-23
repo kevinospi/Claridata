@@ -6,6 +6,7 @@ import { ModalRenombrarInforme } from "./ModalRenombrarInforme";
 import { SeccionDescubrimientos } from "./SeccionDescubrimientos";
 import { renombrarInforme } from "@/lib/api/informes";
 import { SeccionInterpretacion } from "./SeccionInterpretacion";
+import { SeccionRecomendaciones } from "./SeccionRecomendaciones";
 
 
 interface PropiedadesVistaInforme {
@@ -164,6 +165,15 @@ export function VistaInforme({
             secciones={informe.interpretacion_profesional}
       />
     </div>
+        )}
+      {informe.recomendaciones_inteligentes &&
+        informe.recomendaciones_inteligentes.length > 0 && (
+        <div className="rounded-2xl border border-white/10 bg-white/[0.02] px-6 py-6">
+          <SeccionRecomendaciones
+            recomendaciones={informe.recomendaciones_inteligentes}
+      />
+    </div>
+  
   )}
 
       <ModalRenombrarInforme

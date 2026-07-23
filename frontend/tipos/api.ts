@@ -77,6 +77,7 @@ export interface InformeDetalleRespuesta {
   fecha_creacion: string;
   fecha_actualizacion: string;
   interpretacion_profesional: SeccionInterpretacionRespuesta[] | null;
+  recomendaciones_inteligentes: RecomendacionRespuesta[] | null;
 }
 
 export interface InformeResumenRespuesta {
@@ -95,4 +96,14 @@ export interface SeccionInterpretacionRespuesta {
   tipo: string;
   titulo: string;
   parrafos: string[];
+}
+
+export type PrioridadRecomendacion = "ALTA" | "MEDIA" | "BAJA";
+
+export interface RecomendacionRespuesta {
+  titulo: string;
+  categoria: string;
+  prioridad: PrioridadRecomendacion;
+  razon: string;
+  accion: string;
 }
