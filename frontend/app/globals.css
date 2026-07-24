@@ -26,3 +26,19 @@ body {
     transform: translateY(0);
   }
 }
+
+@keyframes pulso-suave {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.6; }
+}
+
+@keyframes entrada-desde-izquierda {
+  0% {
+    opacity: 0;
+    transform: translateX(-12px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}

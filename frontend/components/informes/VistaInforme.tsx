@@ -1,13 +1,22 @@
 "use client";
 
 import { useState } from "react";
+import { AnimatePresence, motion } from "framer-motion";
 import { InformeDetalleRespuesta } from "@/tipos/api";
-import { ModalRenombrarInforme } from "./ModalRenombrarInforme";
-import { SeccionDescubrimientos } from "./SeccionDescubrimientos";
 import { renombrarInforme } from "@/lib/api/informes";
-import { SeccionInterpretacion } from "./SeccionInterpretacion";
-import { SeccionRecomendaciones } from "./SeccionRecomendaciones";
 
+import { HeroInforme } from "./secciones/HeroInforme";
+import { KpisInforme } from "./secciones/KpisInforme";
+import { ResumenEjecutivo } from "./secciones/ResumenEjecutivo";
+import { DescubrimientosDashboard } from "./secciones/DescubrimientosDashboard";
+import { InterpretacionDashboard } from "./secciones/InterpretacionDashboard";
+import { RecomendacionesDashboard } from "./secciones/RecomendacionesDashboard";
+import { EstadisticasDescriptivas } from "./secciones/EstadisticasDescriptivas";
+import { CorrelacionesDashboard } from "./secciones/CorrelacionesDashboard";
+import { OutliersDashboard } from "./secciones/OutliersDashboard";
+import { GraficasPlaceholder } from "./secciones/GraficasPlaceholder";
+import { ModalRenombrarInforme } from "./ModalRenombrarInforme";
+import { TabsInforme, TabDefinicion } from "./TabsInforme";
 
 interface PropiedadesVistaInforme {
   informe: InformeDetalleRespuesta;
@@ -15,139 +24,120 @@ interface PropiedadesVistaInforme {
   alAnalizarOtro?: () => void;
 }
 
-function formatearFecha(fechaIso: string): string {
-  return new Date(fechaIso).toLocaleString("es-CO", {
-    dateStyle: "medium",
-    timeStyle: "short",
-  });
-}
+type IdTab =
+  | "resumen"
+  | "descubrimientos"
+  | "interpretacion"
+  | "recomendaciones"
+  | "estadisticas"
+  | "correlaciones"
+  | "outliers"
+  | "graficas";
 
-function calcularPorcentajeNulos(informe: InformeDetalleRespuesta): number {
-  const valoresNulos = informe.estadisticas_descriptivas?.valores_nulos;
-  const metadatos = informe.estadisticas_descriptivas?.metadatos;
+const TABS: TabDefinicion[] = [
+  { id: "resumen", etiqueta: "Resumen", emoji: "📋", disponible: true },
+  { id: "descubrimientos", etiqueta: "Descubrimientos", emoji: "🔍", disponible: true },
+  { id: "interpretacion", etiqueta: "Interpretación", emoji: "🧠", disponible: true },
+  { id: "recomendaciones", etiqueta: "Recomendaciones", emoji: "💡", disponible: true },
+  { id: "estadisticas", etiqueta: "Estadísticas", emoji: "📊", disponible: true },
+  { id: "correlaciones", etiqueta: "Correlaciones", emoji: "🔗", disponible: true },
+  { id: "outliers", etiqueta: "Outliers", emoji: "⚠️", disponible: true },
+  { id: "graficas", etiqueta: "Gráficas", emoji: "📈", disponible: true },
+];
 
-  if (!valoresNulos || !metadatos) return 0;
-
-  const totalCeldas = metadatos.numero_filas * metadatos.numero_columnas;
-  if (totalCeldas === 0) return 0;
-
-  return (valoresNulos.total / totalCeldas) * 100;
-}
-
-interface DatoResumenProps {
-  etiqueta: string;
-  valor: string;
-}
-
-function DatoResumen({ etiqueta, valor }: DatoResumenProps) {
-  return (
-    <div className="flex flex-col gap-1 rounded-2xl border border-white/10 bg-white/[0.03] px-6 py-5">
-      <p className="text-sm text-claridata-textoSecundario">{etiqueta}</p>
-      <p className="text-2xl font-semibold text-claridata-texto">{valor}</p>
-    </div>
-  );
-}
+const variantes = {
+  entrada: { opacity: 0, y: 10 },
+  visible: { opacity: 1, y: 0 },
+  salida: { opacity: 0, y: -6 },
+};
 
 export function VistaInforme({
-  informe,
+  informe: informeInicial,
   alActualizarInforme,
   alAnalizarOtro,
 }: PropiedadesVistaInforme) {
+  const [informe, setInforme] = useState(informeInicial);
+  const [tabActiva, setTabActiva] = useState<IdTab>("resumen");
   const [modalAbierto, setModalAbierto] = useState(false);
   const [renombrando, setRenombrando] = useState(false);
   const [errorRenombrar, setErrorRenombrar] = useState<string | null>(null);
 
-  const metadatos = informe.estadisticas_descriptivas?.metadatos;
-  const clasificacion =
-    informe.estadisticas_descriptivas?.clasificacion_variables;
-  const porcentajeNulos = calcularPorcentajeNulos(informe);
-
   const manejarConfirmarRenombrar = async (nuevoTitulo: string) => {
     setRenombrando(true);
     setErrorRenombrar(null);
-
     try {
-      const informeActualizado = await renombrarInforme(informe.id, nuevoTitulo);
-      alActualizarInforme?.(informeActualizado);
+      const actualizado = await renombrarInforme(informe.id, nuevoTitulo);
+      setInforme(actualizado);
+      alActualizarInforme?.(actualizado);
       setModalAbierto(false);
     } catch {
-      setErrorRenombrar(
-        "No fue posible renombrar el informe. Intenta de nuevo.",
-      );
+      setErrorRenombrar("No fue posible renombrar el informe. Intenta de nuevo.");
     } finally {
       setRenombrando(false);
     }
   };
 
   return (
-    <div className="flex w-full flex-col gap-8">
-      <div className="text-center">
-        <p className="text-sm font-medium uppercase tracking-wide text-claridata-marca">
-          {informe.guardado ? "Informe guardado" : "Análisis completado"}
-        </p>
+    <div className="flex w-full flex-col gap-6">
+      <HeroInforme
+        informe={informe}
+        alRenombrar={alActualizarInforme ? () => setModalAbierto(true) : undefined}
+      />
 
-        <div className="mt-2 flex items-center justify-center gap-3">
-          <h2 className="text-2xl font-bold text-claridata-texto">
-            {informe.titulo}
-          </h2>
+      <KpisInforme informe={informe} />
 
-          {alActualizarInforme && (
-            <button
-              type="button"
-              onClick={() => setModalAbierto(true)}
-              aria-label="Renombrar informe"
-              className="text-claridata-textoSecundario transition-colors hover:text-claridata-texto"
-            >
-              ✏️
-            </button>
+      <TabsInforme
+        tabs={TABS}
+        tabActiva={tabActiva}
+        alCambiarTab={(id) => setTabActiva(id as IdTab)}
+      />
+
+      <AnimatePresence mode="wait">
+        <motion.div
+          key={tabActiva}
+          variants={variantes}
+          initial="entrada"
+          animate="visible"
+          exit="salida"
+          transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
+          className="rounded-2xl border border-white/10 bg-white/[0.02] px-6 py-6"
+        >
+          {tabActiva === "resumen" && (
+            <ResumenEjecutivo informe={informe} />
           )}
-        </div>
-      </div>
+          {tabActiva === "descubrimientos" && (
+            <DescubrimientosDashboard
+              descubrimientos={informe.descubrimientos ?? []}
+            />
+          )}
+          {tabActiva === "interpretacion" && (
+            <InterpretacionDashboard
+              secciones={informe.interpretacion_profesional ?? []}
+            />
+          )}
+          {tabActiva === "recomendaciones" && (
+            <RecomendacionesDashboard
+              recomendaciones={informe.recomendaciones_inteligentes ?? []}
+            />
+          )}
+          {tabActiva === "estadisticas" && (
+            <EstadisticasDescriptivas informe={informe} />
+          )}
+          {tabActiva === "correlaciones" && (
+            <CorrelacionesDashboard informe={informe} />
+          )}
+          {tabActiva === "outliers" && (
+            <OutliersDashboard informe={informe} />
+          )}
+          {tabActiva === "graficas" && <GraficasPlaceholder />}
+        </motion.div>
+      </AnimatePresence>
 
       {errorRenombrar && (
         <p className="text-center text-sm font-medium text-red-400">
           {errorRenombrar}
         </p>
       )}
-
-      <div className="grid grid-cols-2 gap-4 md:grid-cols-3">
-        <DatoResumen
-          etiqueta="Filas"
-          valor={metadatos?.numero_filas.toLocaleString("es-CO") ?? "—"}
-        />
-        <DatoResumen
-          etiqueta="Columnas"
-          valor={metadatos?.numero_columnas.toLocaleString("es-CO") ?? "—"}
-        />
-        <DatoResumen
-          etiqueta="Variables numéricas"
-          valor={clasificacion?.numericas.length.toString() ?? "—"}
-        />
-        <DatoResumen
-          etiqueta="Variables categóricas"
-          valor={clasificacion?.categoricas.length.toString() ?? "—"}
-        />
-        <DatoResumen
-          etiqueta="Valores nulos"
-          valor={`${porcentajeNulos.toFixed(1)}%`}
-        />
-        <DatoResumen
-          etiqueta="Estado del análisis"
-          valor={informe.guardado ? "Guardado" : "Analizado"}
-        />
-      </div>
-
-      {informe.descubrimientos && informe.descubrimientos.length >= 0 && (
-        <div className="rounded-2xl border border-white/10 bg-white/[0.02] px-6 py-6">
-          <SeccionDescubrimientos
-            descubrimientos={informe.descubrimientos}
-          />
-        </div>
-      )}
-
-      <p className="text-center text-sm text-claridata-textoSecundario">
-        Análisis realizado el {formatearFecha(informe.fecha_creacion)}
-      </p>
 
       {alAnalizarOtro && (
         <button
@@ -158,23 +148,6 @@ export function VistaInforme({
           Analizar otro archivo
         </button>
       )}
-      {informe.interpretacion_profesional &&
-        informe.interpretacion_profesional.length > 0 && (
-        <div className="rounded-2xl border border-white/10 bg-white/[0.02] px-6 py-6">
-          <SeccionInterpretacion
-            secciones={informe.interpretacion_profesional}
-      />
-    </div>
-        )}
-      {informe.recomendaciones_inteligentes &&
-        informe.recomendaciones_inteligentes.length > 0 && (
-        <div className="rounded-2xl border border-white/10 bg-white/[0.02] px-6 py-6">
-          <SeccionRecomendaciones
-            recomendaciones={informe.recomendaciones_inteligentes}
-      />
-    </div>
-  
-  )}
 
       <ModalRenombrarInforme
         abierto={modalAbierto}
@@ -185,5 +158,4 @@ export function VistaInforme({
       />
     </div>
   );
-  
 }
