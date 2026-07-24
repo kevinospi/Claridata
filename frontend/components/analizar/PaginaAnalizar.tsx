@@ -14,7 +14,8 @@ import {
   obtenerDataset,
   subirDataset,
 } from "@/lib/api/datasets";
-import { ErrorApiRespuesta, ErrorRed } from "@/lib/api/cliente";
+import { ErrorApiRespuesta, ErrorRed, ErrorSesionExpirada } from "@/lib/api/cliente";
+
 
 function obtenerExtension(nombreArchivo: string): string {
   const partes = nombreArchivo.split(".");
@@ -22,21 +23,13 @@ function obtenerExtension(nombreArchivo: string): string {
 }
 
 function obtenerMensajeError(error: unknown): string {
-  if (error instanceof ErrorRed) {
-    return error.message;
-  }
-
+  if (error instanceof ErrorSesionExpirada) return error.message;
+  if (error instanceof ErrorRed) return error.message;
   if (error instanceof ErrorApiRespuesta) {
-    if (error.codigoEstado === 422) {
-      return `El archivo no pudo procesarse: ${error.message}`;
-    }
-    if (error.codigoEstado === 401 || error.codigoEstado === 403) {
-      return "No fue posible autenticar la solicitud con Claridata.";
-    }
+    if (error.codigoEstado === 422) return `El archivo no pudo procesarse: ${error.message}`;
     return error.message;
   }
-
-  return "Ocurrió un error inesperado durante el análisis. Intenta de nuevo.";
+  return "Ocurrió un error inesperado. Intenta de nuevo.";
 }
 
 export function PaginaAnalizar() {

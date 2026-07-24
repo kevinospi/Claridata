@@ -78,6 +78,7 @@ export interface InformeDetalleRespuesta {
   fecha_actualizacion: string;
   interpretacion_profesional: SeccionInterpretacionRespuesta[] | null;
   recomendaciones_inteligentes: RecomendacionRespuesta[] | null;
+  visualizaciones_inteligentes: VisualizacionRespuesta[] | null;
 }
 
 export interface InformeResumenRespuesta {
@@ -106,4 +107,25 @@ export interface RecomendacionRespuesta {
   prioridad: PrioridadRecomendacion;
   razon: string;
   accion: string;
+}
+
+
+export type TipoVisualizacion =
+  | "HISTOGRAMA"
+  | "BOXPLOT"
+  | "SCATTER"
+  | "HEATMAP"
+  | "BARRAS"
+  | "DISTRIBUCION";
+
+export type PrioridadVisualizacion = "ALTA" | "MEDIA" | "BAJA";
+
+export interface VisualizacionRespuesta {
+  tipo: TipoVisualizacion;
+  titulo: string;
+  descripcion: string;
+  prioridad: PrioridadVisualizacion;
+  motivo: string;
+  variables: string[];
+  configuracion: Record<string, unknown>;
 }

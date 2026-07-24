@@ -14,9 +14,9 @@ import { RecomendacionesDashboard } from "./secciones/RecomendacionesDashboard";
 import { EstadisticasDescriptivas } from "./secciones/EstadisticasDescriptivas";
 import { CorrelacionesDashboard } from "./secciones/CorrelacionesDashboard";
 import { OutliersDashboard } from "./secciones/OutliersDashboard";
-import { GraficasPlaceholder } from "./secciones/GraficasPlaceholder";
 import { ModalRenombrarInforme } from "./ModalRenombrarInforme";
 import { TabsInforme, TabDefinicion } from "./TabsInforme";
+import { RenderizadorGraficas } from "./graficas/RenderizadorGraficas";
 
 interface PropiedadesVistaInforme {
   informe: InformeDetalleRespuesta;
@@ -129,7 +129,11 @@ export function VistaInforme({
           {tabActiva === "outliers" && (
             <OutliersDashboard informe={informe} />
           )}
-          {tabActiva === "graficas" && <GraficasPlaceholder />}
+          {tabActiva === "graficas" && (
+            <RenderizadorGraficas
+            visualizaciones={informe.visualizaciones_inteligentes ?? []}
+  />
+)}
         </motion.div>
       </AnimatePresence>
 
