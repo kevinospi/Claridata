@@ -39,10 +39,10 @@ class InformeModelo(AuditoriaMixin, Base):
     descubrimientos: Mapped[list | None] = mapped_column(JSON, nullable=True)
     interpretacion_profesional: Mapped[list | None] = mapped_column(JSON, nullable=True)
     recomendaciones_inteligentes: Mapped[list | None] = mapped_column(JSON, nullable=True)
+    visualizaciones_inteligentes: Mapped[list | None] = mapped_column(JSON, nullable=True)
 
     usuario: Mapped["UsuarioModelo"] = relationship(back_populates="informes")
     dataset: Mapped["DatasetModelo"] = relationship(back_populates="informe")
-
     graficas: Mapped[list["GraficaModelo"]] = relationship(
         back_populates="informe", cascade="all, delete-orphan",
     )

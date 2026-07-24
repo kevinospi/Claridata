@@ -15,6 +15,7 @@ from infraestructura.ia.interfaz_interpretador_conversacional import Interpretad
 from infraestructura.ia.interpretador_conversacional_reglas import InterpretadorConversacionalReglas
 from infraestructura.estadistica.motor_interpretacion_profesional import MotorInterpretacionProfesional
 from infraestructura.estadistica.motor_recomendaciones import MotorRecomendacionesInteligentes
+from infraestructura.estadistica.motor_visualizaciones import MotorVisualizaciones
 
 
 def obtener_sesion_db():
@@ -70,3 +71,7 @@ def obtener_motor_interpretacion() -> MotorInterpretacionProfesional:
 
 def obtener_motor_recomendaciones() -> MotorRecomendacionesInteligentes:
     return MotorRecomendacionesInteligentes()
+
+
+def obtener_motor_visualizaciones() -> MotorVisualizaciones:
+    return MotorVisualizaciones()
